@@ -1,31 +1,52 @@
 ﻿using System;
+using csvdiff.DifferencePrinters;
+using csvdiff.Model;
 
 namespace csvdiff
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            if (args is null || args.Length <= 1)
+            try
             {
-                ShowUsage();
+                Execute(args);
             }
-            if (args.Length >= 3 && args[2] != "-s")
+            catch (Exception ex)
             {
-                Console.WriteLine($"Unknown argument - \"{args[2]}\"");
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private static void Execute(string[] args)
+        {
+            if (args.Length != 2 && args.Length != 4)
+            {
+                Console.WriteLine("Error. Wrong parameters");
+                ShowUsage();
+                return;
+            }
+            if (args.Length == 4 && args[2] != "-s")
+            {
+                Console.WriteLine("Error. Cannot recognize the parameter {0}", args[2]);
+                ShowUsage();
                 return;
             }
 
-            //parallel loading of tables
-            //comparing
-            //output the result
+            var table1 = new CsvTable(args[0]);
+            var table2 = new CsvTable(args[1]);
+
+            var differenceDeterminator = new TableDifferenceDeterminator();
+            var diff = differenceDeterminator.GetDifferences(table1, table2);
+
+            IDifferencePrinter? printer = args.Length == 4 ? new FilePrinter(args[3]) : (IDifferencePrinter)new ConsolePrinter();
+            printer.PrintDiff(diff);
         }
 
         private static void ShowUsage()
         {
-            Console.WriteLine("\nUsage: csvdiff {<Table1>} {<Table2>} [-s [<directory_to_save>]]");
+            Console.WriteLine("\nUsage: csvdiff {<Path_To_Table1>} {<Path_To_Table2>} [-s {<File_To_Save.txt>}]");
             Console.WriteLine("-s  - Save the results to file [optional]");
-            Console.WriteLine("If the directory is not specified - the file will be saved to the directory with csvdiff utility.");
         }
     }
 }
