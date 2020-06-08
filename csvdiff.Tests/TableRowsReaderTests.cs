@@ -1,45 +1,47 @@
-﻿using csvdiff;
-using System;
+﻿using System;
 using System.IO;
 using Xunit;
 
-public class TableRowsReaderTests
+namespace csvdiff.Tests
 {
-    private TableRowsReader loader = new TableRowsReader();
-
-    #region ReadAllLines Tests
-
-    [Fact]
-    public void ReadAllLinesPathNull()
+    public class TableRowsReaderTests
     {
-        string path = null;
-        Assert.Throws<ArgumentException>(() => loader.ReadAllLines(path));
+        private TableRowsReader _loader = new TableRowsReader();
+
+        #region ReadAllLines Tests
+
+        [Fact]
+        public void ReadAllLinesPathNull()
+        {
+            string path = null;
+            Assert.Throws<ArgumentException>(() => _loader.ReadAllLines(path));
+        }
+
+        [Fact]
+        public void ReadAllLinesWithNotExistingFile()
+        {
+            var path = "I'm not exist.csv";
+            Assert.Throws<FileNotFoundException>(() => _loader.ReadAllLines(path));
+        }
+
+        #endregion ReadAllLines Tests
+
+        #region ReadAllLinesAsync Tests
+
+        [Fact]
+        public void ReadAllLinesAsyncPathNull()
+        {
+            string path = null;
+            Assert.Throws<ArgumentException>(() => _loader.ReadAllLinesAsync(path).GetAwaiter().GetResult());
+        }
+
+        [Fact]
+        public void ReadAllLinesAsyncWithNotExistingFile()
+        {
+            string path = "I'm not exist.csv";
+            Assert.Throws<FileNotFoundException>(() => _loader.ReadAllLinesAsync(path).GetAwaiter().GetResult());
+        }
+
+        #endregion ReadAllLinesAsync Tests
     }
-
-    [Fact]
-    public void ReadAllLinesWithNotExistingFile()
-    {
-        var path = "I'm not exist.csv";
-        Assert.Throws<FileNotFoundException>(() => loader.ReadAllLines(path));
-    }
-
-    #endregion ReadAllLines Tests
-
-    #region ReadAllLinesAsync Tests
-
-    [Fact]
-    public void ReadAllLinesAsyncPathNull()
-    {
-        string path = null;
-        Assert.Throws<ArgumentException>(() => loader.ReadAllLinesAsync(path).GetAwaiter().GetResult());
-    }
-
-    [Fact]
-    public void ReadAllLinesAsyncWithNotExistingFile()
-    {
-        string path = "I'm not exist.csv";
-        Assert.Throws<FileNotFoundException>(() => loader.ReadAllLinesAsync(path).GetAwaiter().GetResult());
-    }
-
-    #endregion ReadAllLinesAsync Tests
 }

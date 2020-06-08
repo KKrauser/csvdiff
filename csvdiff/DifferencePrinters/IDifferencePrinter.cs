@@ -5,6 +5,6 @@ namespace csvdiff.DifferencePrinters
 {
     public interface IDifferencePrinter
     {
-        void PrintDiff(List<(CsvRow, CsvRow)> diff);
+        void PrintDifference(List<(CsvRow, CsvRow)> diff);
     }
 }

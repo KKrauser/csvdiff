@@ -1,6 +1,6 @@
-﻿using System;
-using csvdiff.DifferencePrinters;
+﻿using csvdiff.DifferencePrinters;
 using csvdiff.Model;
+using System;
 
 namespace csvdiff
 {
@@ -28,7 +28,7 @@ namespace csvdiff
             }
             if (args.Length == 4 && args[2] != "-s")
             {
-                Console.WriteLine("Error. Cannot recognize the parameter {0}", args[2]);
+                Console.WriteLine($"Error. Cannot recognize the parameter {args[2]}");
                 ShowUsage();
                 return;
             }
@@ -40,7 +40,7 @@ namespace csvdiff
             var diff = differenceDeterminator.GetDifferences(table1, table2);
 
             IDifferencePrinter? printer = args.Length == 4 ? new FilePrinter(args[3]) : (IDifferencePrinter)new ConsolePrinter();
-            printer.PrintDiff(diff);
+            printer.PrintDifference(diff);
         }
 
         private static void ShowUsage()

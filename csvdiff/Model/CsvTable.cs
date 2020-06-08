@@ -31,7 +31,7 @@ namespace csvdiff.Model
             var csvList = new List<CsvRow>(lines.Length);
 
             int i = 1;
-            foreach (var line in lines)
+            foreach (string line in lines)
             {
                 var cells = _parser.ParseRow(line);
                 csvList.Add(new CsvRow(cells, i++));

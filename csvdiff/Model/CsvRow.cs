@@ -84,7 +84,7 @@ namespace csvdiff.Model
             }
             StringBuilder builder = new StringBuilder($"{Number}| ", 15 * Cells.Length);
 
-            foreach (var str in Cells)
+            foreach (string str in Cells)
             {
                 builder.Append($"{str}|");
             }

@@ -2,7 +2,7 @@
   "profiles": {
     "csvdiff": {
       "commandName": "Project",
-      "commandLineArgs": "table1.csv table2.csv    "
+      "commandLineArgs": "table1.csv table2.csv -s Diff.txt"
     }
   }
 }

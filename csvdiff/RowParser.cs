@@ -6,7 +6,7 @@ namespace csvdiff
 {
     public class RowParser : IRowParser
     {
-        private const string CCSVPattern = "(?:^|,)(?=[^\"]|(\")?)\"?((?(1)[^\"]*|[^,\"]*))\"?(?=,|$)";
+        private const string CSVPattern = "(?:^|,)(?=[^\"]|(\")?)\"?((?(1)[^\"]*|[^,\"]*))\"?(?=,|$)";
         private static Regex? regex;
 
         public string[] ParseRow(string? row)
@@ -26,14 +26,16 @@ namespace csvdiff
 
         private string[] ParseDiffucultCase(string row)
         {
-            if (row.Count(c => c == '"') % 2 != 0)
+            if (row.Count(c => c == '"') % 2 != 0
+                || !row.StartsWith('"') && row.IndexOf(',') > row.IndexOf('"')
+                || !row.EndsWith('"') && row.LastIndexOf(',') < row.LastIndexOf('"'))
             {
                 throw new FormatException($"Error. The row \"{row}\" formatting is invalid.");
             }
 
             if (regex is null)
             {
-                regex = new Regex(CCSVPattern);
+                regex = new Regex(CSVPattern);
             }
 
             var matches = regex.Matches(row);
