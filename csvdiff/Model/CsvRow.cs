@@ -66,10 +66,10 @@ namespace csvdiff.Model
 
         public override int GetHashCode()
         {
-            int hash = 0;
+            int hash = 352033288;
             for (int i = 0; i < Cells.Length; i++)
             {
-                hash ^= Cells[i] is null ? 0 : Cells[i].GetHashCode();
+                hash ^= hash * (Cells[i] is null ? -1521134295 : Cells[i].GetHashCode());
             }
 
             return hash;
