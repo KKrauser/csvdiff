@@ -5,7 +5,5 @@ namespace csvdiff
     public interface ITableRowsReader
     {
         string[] ReadAllLines(string csvFilePath);
-
-        Task<string[]> ReadAllLinesAsync(string csvFilePath);
     }
 }
