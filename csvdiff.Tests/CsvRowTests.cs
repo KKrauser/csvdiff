@@ -22,7 +22,7 @@ namespace csvdiff.Tests
         public void CtorPassNull()
         {
             var row = new CsvRow(null, 1);
-            Assert.True(row.Cells.Length == 0);
+            Assert.True(row.Cells.Count == 0);
         }
 
         #endregion Construction Tests
@@ -164,5 +164,26 @@ namespace csvdiff.Tests
         }
 
         #endregion ToString Tests
+
+        #region IFormattable Implementation
+
+        [Theory]
+        [InlineData(new string[] { "Column1", "Column2", "Column3" }, "c|c", "Column1|Column2|Column3")]
+        [InlineData(new string[] { "Column1", "Column2", "Column3" }, "C|c", "Column1|Column2|Column3")]
+        [InlineData(new string[] { "Column1", "Column2", "Column3" }, "G", "Column1|Column2|Column3")]
+        [InlineData(new string[] { "Column1", "Column2", "Column3" }, "g", "Column1|Column2|Column3")]
+        [InlineData(new string[] { "Column1", "", "Column3" }, "c,C","Column1,,Column3")]
+        [InlineData(new string[] { "SHA", " Kappa    " }, "C c","SHA  Kappa    ")]
+        [InlineData(new string[] { "Column1", "Column2", "Column3" }, null, "Column1|Column2|Column3")]
+        [InlineData(new string[] { }, null ,"")]
+        [InlineData(null, "c|c", "")]
+        public void FormattableToStringTheory(string[] cells, string format, string expected)
+        {
+            var row = new CsvRow(cells, 1);
+            var result = row.ToString(format);
+            Assert.Equal(expected, result);
+        }
+
+        #endregion
     }
 }
