@@ -7,7 +7,7 @@ using System.Text;
 
 namespace csvdiff.Model
 {
-    public class CsvRow : IEquatable<CsvRow>
+    public class CsvRow : IEquatable<CsvRow>, IFormattable
     {
         public static readonly CsvRow Empty = new CsvRow(new string[] { }, -1);
         public int Number { get; }
@@ -95,6 +95,24 @@ namespace csvdiff.Model
 
             builder.Remove(builder.Length - 1, 1);
             return builder.ToString();
+        }
+
+        public string ToString(string? format, IFormatProvider? formatProvider = null)
+        {
+            if (string.IsNullOrEmpty(format) || format.ToUpper() is "G")
+            {
+                format = "C|C";
+            }
+
+            formatProvider ??= CultureInfo.CurrentCulture;
+
+            return format.ToUpperInvariant() switch
+            {
+                "C|C" => Cells.Count > 0 ? Cells.ToList().Aggregate((c1, c2) => $"{c1}|{c2}").ToString(formatProvider) : string.Empty,
+                "C,C" => Cells.Count > 0 ? Cells.ToList().Aggregate((c1, c2) => $"{c1},{c2}").ToString(formatProvider) : string.Empty,
+                "C C" => Cells.Count > 0 ? Cells.ToList().Aggregate((c1, c2) => $"{c1} {c2}").ToString(formatProvider) : string.Empty,
+                _ => throw new FormatException($"The {format} format string is not supported.")
+            };
         }
     }
 }
