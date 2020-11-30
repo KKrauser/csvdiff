@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace csvdiff.Model
@@ -7,11 +11,11 @@ namespace csvdiff.Model
     {
         public static readonly CsvRow Empty = new CsvRow(new string[] { }, -1);
         public int Number { get; }
-        public string[] Cells { get; }
+        public ReadOnlyCollection<string> Cells { get; }
 
         public CsvRow(string[]? cells, int number)
         {
-            Cells = cells is null ? Array.Empty<string>() : cells;
+            Cells = cells is null ? new ReadOnlyCollection<string>(new List<string>()) : Array.AsReadOnly(cells);
             Number = number;
         }
 
@@ -40,14 +44,14 @@ namespace csvdiff.Model
                 return false;
             }
 
-            if (Cells.Length != other.Cells.Length)
+            if (Cells.Count != other.Cells.Count)
             {
                 return false;
             }
 
             if (GetHashCode() == other.GetHashCode())
             {
-                for (int i = 0; i < Cells.Length; i++)
+                for (int i = 0; i < Cells.Count; i++)
                 {
                     if (Cells[i] != other.Cells[i])
                     {
@@ -67,7 +71,7 @@ namespace csvdiff.Model
         public override int GetHashCode()
         {
             int hash = 352033288;
-            for (int i = 0; i < Cells.Length; i++)
+            for (int i = 0; i < Cells.Count; i++)
             {
                 hash ^= hash * (Cells[i] is null ? -1521134295 : Cells[i].GetHashCode());
             }
@@ -78,11 +82,11 @@ namespace csvdiff.Model
         public override string ToString()
         {
             string toStrResult = string.Empty;
-            if (Cells is null || Cells.Length == 0)
+            if (Cells is null || Cells.Count == 0)
             {
                 return $"{Number}| ";
             }
-            StringBuilder builder = new StringBuilder($"{Number}| ", 15 * Cells.Length);
+            StringBuilder builder = new StringBuilder($"{Number}| ", 15 * Cells.Count);
 
             foreach (string str in Cells)
             {
