@@ -13,7 +13,7 @@ namespace csvdiff
                 return diff;
             }
 
-            int minRowLength = table1.Rows.Length > table2.Rows.Length ? table2.Rows.Length : table1.Rows.Length;
+            int minRowLength = table1.Rows.Count > table2.Rows.Count ? table2.Rows.Count : table1.Rows.Count;
 
             for (int i = 0; i < minRowLength; i++)
             {
@@ -23,16 +23,16 @@ namespace csvdiff
                 }
             }
 
-            if (table1.Rows.Length > minRowLength)
+            if (table1.Rows.Count > minRowLength)
             {
-                for (int i = minRowLength; i < table1.Rows.Length; i++)
+                for (int i = minRowLength; i < table1.Rows.Count; i++)
                 {
                     diff.Add((table1.Rows[i], CsvRow.Empty));
                 }
             }
             else
             {
-                for (int i = minRowLength; i < table2.Rows.Length; i++)
+                for (int i = minRowLength; i < table2.Rows.Count; i++)
                 {
                     diff.Add((CsvRow.Empty, table2.Rows[i]));
                 }

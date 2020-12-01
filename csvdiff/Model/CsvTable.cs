@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace csvdiff.Model
 {
@@ -9,20 +10,20 @@ namespace csvdiff.Model
         private ITableRowsReader _reader;
         private string _file;
 
-        public readonly CsvRow[] Rows;
+        public ReadOnlyCollection<CsvRow> Rows { get; }
 
         public CsvTable(string csvFilePath) : this(csvFilePath, new RowParser())
         { }
 
-        public CsvTable(string csvFilePath, IRowParser parser) : this(csvFilePath, parser, new TableRowsReader())
+        public CsvTable(string csvFilePath, IRowParser? parser) : this(csvFilePath, parser, new TableRowsReader())
         { }
 
-        public CsvTable(string csvFilePath, IRowParser parser, ITableRowsReader reader)
+        public CsvTable(string csvFilePath, IRowParser? parser, ITableRowsReader? reader)
         {
             _file = csvFilePath;
             _parser = parser ?? new RowParser();
             _reader = reader ?? new TableRowsReader();
-            Rows = LoadTable();
+            Rows = Array.AsReadOnly(LoadTable());
         }
 
         private CsvRow[] LoadTable()
@@ -49,14 +50,14 @@ namespace csvdiff.Model
 
             if (GetHashCode() == other.GetHashCode())
             {
-                if (Rows.Length != other.Rows.Length)
+                if (Rows.Count != other.Rows.Count)
                 {
                     return false;
                 }
 
                 if (GetHashCode() == other.GetHashCode())
                 {
-                    for (int i = 0; i < Rows!.Length; i++)
+                    for (int i = 0; i < Rows.Count; i++)
                     {
                         if (Rows[i] != other.Rows[i])
                         {
@@ -95,7 +96,7 @@ namespace csvdiff.Model
         public override int GetHashCode()
         {
             int hash = 861097806;
-            for (int i = 0; i < Rows.Length; i++)
+            for (int i = 0; i < Rows.Count; i++)
             {
                 hash ^= hash * (Rows[i] is null ? -1452011 : Rows[i].GetHashCode());
             }
