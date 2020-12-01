@@ -6,10 +6,9 @@ using System.Text;
 
 namespace csvdiff.DifferencePrinters
 {
-    public class FilePrinter : IDifferencePrinter
+    public class FilePrinter : DifferencePrinterBase
     {
         private string _path;
-        private const string Separator = " / ";
 
         public FilePrinter(string path)
         {
@@ -20,8 +19,13 @@ namespace csvdiff.DifferencePrinters
             _path = path;
         }
 
-        public void PrintDifference(List<(CsvRow, CsvRow)> diff)
+        public override void PrintDifference(List<(CsvRow, CsvRow)>? diff)
         {
+            if (diff is null)
+            {
+                return;
+            }
+
             var output = PrepareOutput(diff);
             WriteToFile(output);
         }
@@ -73,7 +77,7 @@ namespace csvdiff.DifferencePrinters
             var difference = new StringBuilder(diff.Count * 30);
             foreach ((CsvRow, CsvRow) row in diff)
             {
-                difference.AppendLine($"{row.Item1}{Separator}{row.Item2}");
+                difference.AppendLine($"{row.Item1}{TableSeparator}{row.Item2}");
             }
 
             return difference.ToString();
