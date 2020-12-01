@@ -20,15 +20,8 @@ namespace csvdiff
 
         private static void Execute(string[] args)
         {
-            if (args.Length != 2 && args.Length != 4)
+            if(!IsParametersValid(args))
             {
-                Console.WriteLine("Error. Wrong parameters");
-                ShowUsage();
-                return;
-            }
-            if (args.Length == 4 && args[2] != "-s")
-            {
-                Console.WriteLine($"Error. Cannot recognize the parameter {args[2]}");
                 ShowUsage();
                 return;
             }
@@ -39,8 +32,24 @@ namespace csvdiff
             var differenceDeterminator = new TableDifferenceDeterminator();
             var diff = differenceDeterminator.GetDifferences(table1, table2);
 
-            IDifferencePrinter? printer = args.Length == 4 ? new FilePrinter(args[3]) : (IDifferencePrinter)new ConsolePrinter();
+            DifferencePrinterBase? printer = args.Length == 4 ? new FilePrinter(args[3]) : (DifferencePrinterBase)new ConsolePrinter();
             printer.PrintDifference(diff);
+        }
+
+        private static bool IsParametersValid(string[] args)
+        {
+            if (args.Length != 2 && args.Length != 4)
+            {
+                Console.WriteLine("Error. Wrong parameters count");
+                return false;
+            }
+            if (args.Length == 4 && args[2] != "-s")
+            {
+                Console.WriteLine($"Error. Cannot recognize the parameter {args[2]}");
+                return false;
+            }
+
+            return true;
         }
 
         private static void ShowUsage()
