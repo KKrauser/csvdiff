@@ -1,7 +1,8 @@
 {
   "profiles": {
     "csvdiff": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\Projects\\Github projects\\csvdiff\\csvdiff\\bin\\Debug\\netcoreapp3.1\\csvTestData1.csv\" \"D:\\Projects\\Github projects\\csvdiff\\csvdiff\\bin\\Debug\\netcoreapp3.1\\csvTestData2.csv\""
     }
   }
 }

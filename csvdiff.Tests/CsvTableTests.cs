@@ -1,22 +1,24 @@
-﻿using csvdiff.Model;
-using Moq;
+﻿using Moq;
 using System;
 using System.Linq;
 using Xunit;
+
+using csvdiff.Model;
+using csvdiff.Parsers;
 
 namespace csvdiff.Tests
 {
     public class CsvTableTests
     {
         private string _pathToDefaultTable = "Whatever";
-        private Mock<IRowParser> _defaultParserMock;
+        private Mock<ExcelCellsParserBase> _defaultParserMock;
         private Mock<ITableRowsReader> _defaultRowsReaderMock;
         private CsvTable _defaultTable;
 
         public CsvTableTests()
         {
-            _defaultParserMock = new Mock<IRowParser>();
-            _defaultParserMock.Setup(p => p.ParseRow(string.Empty)).Returns(Enumerable.Repeat("Cell", 3).ToArray());
+            _defaultParserMock = new Mock<ExcelCellsParserBase>();
+            _defaultParserMock.Setup(p => p.ParseCells(string.Empty)).Returns(Enumerable.Repeat("Cell", 3).ToArray());
 
             _defaultRowsReaderMock = new Mock<ITableRowsReader>();
             _defaultRowsReaderMock.Setup(r => r.ReadAllLines(_pathToDefaultTable)).Returns(Enumerable.Repeat(string.Empty, 3).ToArray());
@@ -36,23 +38,23 @@ namespace csvdiff.Tests
             Assert.True(result);
             //As we use single mock instances for both tables - count of calls
             //will be doubled.
-            _defaultParserMock.Verify(p => p.ParseRow(string.Empty), Times.Exactly(6)); //3 for each table
+            _defaultParserMock.Verify(p => p.ParseCells(string.Empty), Times.Exactly(6)); //3 for each table
             _defaultRowsReaderMock.Verify(r => r.ReadAllLines(_pathToDefaultTable), Times.Exactly(2)); //1 for each table
         }
 
         [Fact]
         public void EqualsForNonEqualTables()
         {
-            var table2ParserMock = new Mock<IRowParser>();
-            table2ParserMock.Setup(p => p.ParseRow(It.IsAny<string>())).Returns(Enumerable.Repeat("AnotherCell", 3).ToArray());
+            var table2ParserMock = new Mock<ExcelCellsParserBase>();
+            table2ParserMock.Setup(p => p.ParseCells(It.IsAny<string>())).Returns(Enumerable.Repeat("AnotherCell", 3).ToArray());
 
             var table2 = new CsvTable(_pathToDefaultTable, table2ParserMock.Object, _defaultRowsReaderMock.Object);
 
             var result = _defaultTable.Equals(table2);
 
             Assert.False(result);
-            _defaultParserMock.Verify(p => p.ParseRow(string.Empty), Times.Exactly(3));
-            table2ParserMock.Verify(p => p.ParseRow(string.Empty), Times.Exactly(3));
+            _defaultParserMock.Verify(p => p.ParseCells(string.Empty), Times.Exactly(3));
+            table2ParserMock.Verify(p => p.ParseCells(string.Empty), Times.Exactly(3));
             _defaultRowsReaderMock.Verify(r => r.ReadAllLines(_pathToDefaultTable), Times.Exactly(2)); //1 for each table
         }
 
@@ -64,22 +66,22 @@ namespace csvdiff.Tests
             var result = _defaultTable.Equals(table2);
 
             Assert.False(result);
-            _defaultParserMock.Verify(p => p.ParseRow(string.Empty), Times.Exactly(3));
+            _defaultParserMock.Verify(p => p.ParseCells(string.Empty), Times.Exactly(3));
             _defaultRowsReaderMock.Verify(r => r.ReadAllLines(_pathToDefaultTable), Times.Exactly(1));
         }
 
         [Fact]
         public void EqualsForTablesWithDifferentRowLengths()
         {
-            var table2ParserMock = new Mock<IRowParser>();
-            table2ParserMock.Setup(p => p.ParseRow(It.IsAny<string>())).Returns(Enumerable.Repeat("Cell", 2).ToArray());
+            var table2ParserMock = new Mock<ExcelCellsParserBase>();
+            table2ParserMock.Setup(p => p.ParseCells(It.IsAny<string>())).Returns(Enumerable.Repeat("Cell", 2).ToArray());
             var table2 = new CsvTable(_pathToDefaultTable, table2ParserMock.Object, _defaultRowsReaderMock.Object);
 
             var result = _defaultTable.Equals(table2);
 
             Assert.False(result);
-            _defaultParserMock.Verify(p => p.ParseRow(string.Empty), Times.Exactly(3));
-            table2ParserMock.Verify(p => p.ParseRow(string.Empty), Times.Exactly(3));
+            _defaultParserMock.Verify(p => p.ParseCells(string.Empty), Times.Exactly(3));
+            table2ParserMock.Verify(p => p.ParseCells(string.Empty), Times.Exactly(3));
             _defaultRowsReaderMock.Verify(r => r.ReadAllLines(_pathToDefaultTable), Times.Exactly(2)); //1 for each table
         }
 
@@ -117,8 +119,8 @@ namespace csvdiff.Tests
         [Fact]
         public void GetHashCodeOfTwoDifferentTables()
         {
-            var table2ParserMock = new Mock<IRowParser>();
-            table2ParserMock.Setup(p => p.ParseRow(It.IsAny<string>())).Returns(Enumerable.Repeat("AnotherCell", 3).ToArray());
+            var table2ParserMock = new Mock<ExcelCellsParserBase>();
+            table2ParserMock.Setup(p => p.ParseCells(It.IsAny<string>())).Returns(Enumerable.Repeat("AnotherCell", 3).ToArray());
             var table2 = new CsvTable(_pathToDefaultTable, table2ParserMock.Object, _defaultRowsReaderMock.Object);
 
             Assert.False(_defaultTable.GetHashCode() == table2.GetHashCode());

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace csvdiff
+﻿namespace csvdiff
 {
     public interface ITableRowsReader
     {

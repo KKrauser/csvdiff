@@ -20,7 +20,7 @@ namespace csvdiff
 
         private static void Execute(string[] args)
         {
-            if(!IsParametersValid(args))
+            if (!IsParametersValid(args))
             {
                 ShowUsage();
                 return;

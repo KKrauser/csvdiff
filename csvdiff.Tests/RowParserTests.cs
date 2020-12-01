@@ -2,95 +2,60 @@
 using System.Linq;
 using Xunit;
 
+using csvdiff.Parsers;
+
 namespace csvdiff.Tests
 {
     public class RowParserTests
     {
-        private RowParser _parser = new RowParser();
+        private ExcelCellsParser _parser = new ExcelCellsParser();
 
-        #region ParseRow Tests
+        [Theory]
+        [InlineData(",", new string[] { "", "" })]
+        [InlineData("Column1,Column2,Column3", new string[] { "Column1", "Column2", "Column3" })]
+        [InlineData("Column1,,Column3,,Column5", new string[] { "Column1", "", "Column3", "", "Column5" })]
+        [InlineData(",,Column1,Column2,Column3,,", new string[] { "", "", "Column1", "Column2", "Column3", "", "" })]
+        public void ParseRowWithoutQuotesTheory(string row, string[] expected)
+        {
+            var result = _parser.ParseCells(row);
+            Assert.True(result.SequenceEqual(expected));
+        }
 
         [Fact]
-        public void ParseSimpleRow()
+        public void ParseEmptyRow()
         {
-            var row = "Column1,Column2,Column3";
-            var expected = new string[] { "Column1", "Column2", "Column3" };
-
-            var result = _parser.ParseRow(row);
-
-            Assert.True(result.SequenceEqual(expected));
+            var row = string.Empty;
+            var result = _parser.ParseCells(row);
+            Assert.True(result.SequenceEqual(Array.Empty<string>()));
         }
 
         [Fact]
         public void ParseNullRow()
         {
             string row = null;
-            var result = _parser.ParseRow(row);
+            var result = _parser.ParseCells(row);
             Assert.Equal(Array.Empty<string>(), result);
         }
 
-        [Fact]
-        public void ParseQuotedCellRow()
+        [Theory]
+        [InlineData("\"Column1\",\"Column2\",\"Column3\"", new string[] { "Column1", "Column2", "Column3" })]
+        [InlineData("\"Co,lu,mn1\",\"Colum\"\"n2\",\"Col,umn3\"", new string[] { "Co,lu,mn1", "Colum\"n2", "Col,umn3" })]
+        [InlineData(",,\"Col\"\"um,n1\",Column2,,Column3,", new string[] { "", "", "Col\"um,n1", "Column2", "", "Column3", "" })]
+        [InlineData("\"\"\"Column1\"\"\",\"RR\"\"RR\",Cell3", new string[] {"\"Column1\"", "RR\"RR", "Cell3"})]
+        public void ParseQuotedRowTheory(string row, string[] expected)
         {
-            var row = "\"Column1\",\"Column2\",\"Column3\"";
-            var expected = new string[] { "Column1", "Column2", "Column3" };
-
-            var result = _parser.ParseRow(row);
-
+            var result = _parser.ParseCells(row);
             Assert.True(result.SequenceEqual(expected));
         }
 
-        [Fact]
-        public void ParseRowWithEmptyItems()
+        [Theory]
+        [InlineData("\"Column")]
+        [InlineData("Col\"umn")]
+        [InlineData("Col\"\"umn")]
+        [InlineData("\"Col\"\"umn")]
+        public void ParseRowWithWrongFormat(string row)
         {
-            var row = "Column1,,Column3,,Column5";
-            var expected = new string[] { "Column1", string.Empty, "Column3", string.Empty, "Column5" };
-
-            var result = _parser.ParseRow(row);
-
-            Assert.True(result.SequenceEqual(expected));
+            Assert.Throws<FormatException>(() => _parser.ParseCells(row));
         }
-
-        [Fact]
-        public void ParsePartlyQuotedCellRow()
-        {
-            var row = "\"Column1\",Column2,\"Column3\"";
-            var expected = new string[] { "Column1", "Column2", "Column3" };
-
-            var result = _parser.ParseRow(row);
-
-            Assert.True(result.SequenceEqual(expected));
-        }
-
-        [Fact]
-        public void ParsePartlyQuotedCellRowWithEmptyEntries()
-        {
-            var row = "\"Column1\",,\"\",Column4,\"Column5\",";
-            var expected = new string[] { "Column1", string.Empty, string.Empty, "Column4", "Column5", string.Empty };
-
-            var result = _parser.ParseRow(row);
-
-            Assert.True(result.SequenceEqual(expected));
-        }
-
-        [Fact]
-        public void ParseWronglyFormattedRow()
-        {
-            var row = "\"Column1,Column2,\"Column3";
-            Assert.Throws<FormatException>(() => _parser.ParseRow(row));
-        }
-
-        [Fact]
-        public void ParseRowWithCellQuotes()
-        {
-            var row = "\"\"\"Column1\"\"\",Column2,Column3";
-            var expected = new string[] { "\"Column1\"", "Column2", "Column3" };
-
-            var result = _parser.ParseRow(row);
-
-            Assert.True(result.SequenceEqual(expected));
-        }
-
-        #endregion ParseRow Tests
     }
 }

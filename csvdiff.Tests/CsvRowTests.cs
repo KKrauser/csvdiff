@@ -172,10 +172,10 @@ namespace csvdiff.Tests
         [InlineData(new string[] { "Column1", "Column2", "Column3" }, "C|c", "Column1|Column2|Column3")]
         [InlineData(new string[] { "Column1", "Column2", "Column3" }, "G", "Column1|Column2|Column3")]
         [InlineData(new string[] { "Column1", "Column2", "Column3" }, "g", "Column1|Column2|Column3")]
-        [InlineData(new string[] { "Column1", "", "Column3" }, "c,C","Column1,,Column3")]
-        [InlineData(new string[] { "SHA", " Kappa    " }, "C c","SHA  Kappa    ")]
+        [InlineData(new string[] { "Column1", "", "Column3" }, "c,C", "Column1,,Column3")]
+        [InlineData(new string[] { "SHA", " Kappa    " }, "C c", "SHA  Kappa    ")]
         [InlineData(new string[] { "Column1", "Column2", "Column3" }, null, "Column1|Column2|Column3")]
-        [InlineData(new string[] { }, null ,"")]
+        [InlineData(new string[] { }, null, "")]
         [InlineData(null, "c|c", "")]
         public void FormattableToStringTheory(string[] cells, string format, string expected)
         {
@@ -184,6 +184,6 @@ namespace csvdiff.Tests
             Assert.Equal(expected, result);
         }
 
-        #endregion
+        #endregion IFormattable Implementation
     }
 }
