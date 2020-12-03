@@ -2,6 +2,6 @@
 {
     public interface ICsvCellsParser
     {
-        string[] ParseCells(string row);
+        string[] ParseCells(string line);
     }
 }

@@ -11,13 +11,13 @@ namespace csvdiff.Tests
     public class CsvTableTests
     {
         private string _pathToDefaultTable = "Whatever";
-        private Mock<ExcelCellsParserBase> _defaultParserMock;
+        private Mock<CellsParserBase> _defaultParserMock;
         private Mock<ITableRowsReader> _defaultRowsReaderMock;
         private CsvTable _defaultTable;
 
         public CsvTableTests()
         {
-            _defaultParserMock = new Mock<ExcelCellsParserBase>();
+            _defaultParserMock = new Mock<CellsParserBase>();
             _defaultParserMock.Setup(p => p.ParseCells(string.Empty)).Returns(Enumerable.Repeat("Cell", 3).ToArray());
 
             _defaultRowsReaderMock = new Mock<ITableRowsReader>();
@@ -45,7 +45,7 @@ namespace csvdiff.Tests
         [Fact]
         public void EqualsForNonEqualTables()
         {
-            var table2ParserMock = new Mock<ExcelCellsParserBase>();
+            var table2ParserMock = new Mock<CellsParserBase>();
             table2ParserMock.Setup(p => p.ParseCells(It.IsAny<string>())).Returns(Enumerable.Repeat("AnotherCell", 3).ToArray());
 
             var table2 = new CsvTable(_pathToDefaultTable, table2ParserMock.Object, _defaultRowsReaderMock.Object);
@@ -73,7 +73,7 @@ namespace csvdiff.Tests
         [Fact]
         public void EqualsForTablesWithDifferentRowLengths()
         {
-            var table2ParserMock = new Mock<ExcelCellsParserBase>();
+            var table2ParserMock = new Mock<CellsParserBase>();
             table2ParserMock.Setup(p => p.ParseCells(It.IsAny<string>())).Returns(Enumerable.Repeat("Cell", 2).ToArray());
             var table2 = new CsvTable(_pathToDefaultTable, table2ParserMock.Object, _defaultRowsReaderMock.Object);
 
@@ -119,7 +119,7 @@ namespace csvdiff.Tests
         [Fact]
         public void GetHashCodeOfTwoDifferentTables()
         {
-            var table2ParserMock = new Mock<ExcelCellsParserBase>();
+            var table2ParserMock = new Mock<CellsParserBase>();
             table2ParserMock.Setup(p => p.ParseCells(It.IsAny<string>())).Returns(Enumerable.Repeat("AnotherCell", 3).ToArray());
             var table2 = new CsvTable(_pathToDefaultTable, table2ParserMock.Object, _defaultRowsReaderMock.Object);
 

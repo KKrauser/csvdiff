@@ -5,79 +5,79 @@ using System.Text;
 
 namespace csvdiff.Parsers
 {
-    public class ExcelCellsParser : ExcelCellsParserBase
+    public class CellsParser : CellsParserBase
     {
-        public override string[] ParseCells(string? row)
+        public override string[] ParseCells(string? line)
         {
-            if (string.IsNullOrEmpty(row))
+            if (string.IsNullOrEmpty(line))
             {
                 return Array.Empty<string>();
             }
 
-            return row.Contains(DoubleQuoteMark) ? ParseDiffucultCase(row) : ParseSimpleCase(row);
+            return line.Contains(DoubleQuoteMark) ? ParseDiffucultCase(line) : ParseSimpleCase(line);
         }
 
-        private string[] ParseDiffucultCase(string row)
+        private string[] ParseDiffucultCase(string line)
         {
-            if (row.Count(ch => ch == DoubleQuoteMark) % 2 == 1)
+            if (line.Count(ch => ch == DoubleQuoteMark) % 2 == 1)
             {
                 throw new FormatException("Format of the .csv file is invalid! Single line should contain even number of double quot marks");
             }
 
-            var parsedRow = new List<string>();
+            var parsedCells = new Queue<string>();
 
             int iterator = 0;
-            while (iterator < row.Length)
+            while (iterator < line.Length)
             {
                 string cell = string.Empty;
-                if (row[iterator] is DoubleQuoteMark)
+                if (line[iterator] is DoubleQuoteMark)
                 {
-                    cell = ParseEscapedCell(row, ref iterator);
+                    cell = ParseEscapedCell(line, ref iterator);
                 }
                 else
                 {
-                    cell = ParseNonEscapedCell(row, ref iterator);
-                    if (row.Length - 1 == iterator && row[^1] is Separator)
-                    {
-                        parsedRow.Add(cell);
-                        parsedRow.Add(string.Empty);
-                        break;
-                    }
+                    cell = ParseNonEscapedCell(line, ref iterator);
                 }
 
-                parsedRow.Add(cell);
+                parsedCells.Enqueue(cell);
+
+                if (line.Length - 1 == iterator && line[^1] is Separator)
+                {
+                    parsedCells.Enqueue(string.Empty);
+                }
+
                 iterator++;
             }
 
-            return parsedRow.ToArray();
+            return parsedCells.ToArray();
         }
 
-        private string ParseNonEscapedCell(string row, ref int iterator)
+        private string ParseNonEscapedCell(string line, ref int iterator)
         {
-            var firstSeparatorIndex = row.IndexOf(Separator, iterator);
-            var firstDoubleQuoteIndex = row.IndexOf(DoubleQuoteMark, iterator);
+            var firstSeparatorIndex = line.IndexOf(Separator, iterator);
+            var firstDoubleQuoteIndex = line.IndexOf(DoubleQuoteMark, iterator);
 
             if (firstDoubleQuoteIndex != -1 && (firstSeparatorIndex is -1 || firstDoubleQuoteIndex < firstSeparatorIndex))
             {
-                throw new FormatException($"Cells that contain quotes should be wrapped around with quotes! \r\n Line \"{row}\" is invalid!");
+                throw new FormatException($"Cells that contain quotes should be wrapped around with quotes! \r\nLine \"{line}\" is invalid!");
             }
 
             string cell = string.Empty;
             if (firstSeparatorIndex != -1)
             {
-                cell = row[iterator..firstSeparatorIndex];
+                cell = line[iterator..firstSeparatorIndex];
                 iterator = firstSeparatorIndex;
             }
             else
             {
-                cell = row.Substring(iterator, row.Length - iterator);
-                iterator = row.Length - 1;
+                cell = line.Substring(iterator, line.Length - iterator);
+                iterator = line.Length - 1;
             }
 
             return cell;
         }
 
-        private string ParseEscapedCell(string row, ref int iterator)
+        private string ParseEscapedCell(string line, ref int iterator)
         {
             //Add and skip first quote
             var quoteCount = 1;
@@ -88,38 +88,38 @@ namespace csvdiff.Parsers
             while (true)
             {
                 //Check if we still can go on
-                if (iterator < row.Length - 1)
+                if (iterator < line.Length - 1)
                 {
                     //This double quote should be escaped by following double quote
                     //or by separator, otherwise throw FormatException
-                    if (row[iterator] is DoubleQuoteMark)
+                    if (line[iterator] is DoubleQuoteMark)
                     {
                         quoteCount++;
                         //If true - then row[iterator] double quote is escaped and we should
                         //continue the iteration from the element after escaped double quote
-                        if (row[iterator + 1] is DoubleQuoteMark)
+                        if (line[iterator + 1] is DoubleQuoteMark)
                         {
                             quoteCount++;
-                            cellBuilder.Append(row[iterator]);
+                            cellBuilder.Append(line[iterator]);
 
                             //Skip this escaped quote in the next iteration
                             iterator += 2;
                         }
                         //Else if the next symbol after row[iterator] is Separator and
                         //all quotes are closed(even number of quotes) grab cell
-                        else if (row[iterator + 1] is Separator && quoteCount % 2 == 0)
+                        else if (line[iterator + 1] is Separator && quoteCount % 2 == 0)
                         {
                             iterator++;
                             break;
                         }
                         else
                         {
-                            throw new FormatException($"Quote at index {iterator} in Line \"{row}\" should be followed by escape quote or separator!");
+                            throw new FormatException($"Quote at index {iterator} in Line \"{line}\" should be followed by escape quote or separator!");
                         }
                     }
                     else
                     {
-                        cellBuilder.Append(row[iterator]);
+                        cellBuilder.Append(line[iterator]);
                         iterator++;
                     }
                 }
@@ -127,14 +127,14 @@ namespace csvdiff.Parsers
                 //It should be double quote
                 else
                 {
-                    if (row[iterator] is DoubleQuoteMark)
+                    if (line[iterator] is DoubleQuoteMark)
                     {
                         quoteCount++;
                         break;
                     }
                     else
                     {
-                        throw new FormatException($"The last item of the line \"{row}\" with last escaped cell should be double quote");
+                        throw new FormatException($"The last item of the line \"{line}\" with last escaped cell should be double quote");
                     }
                 }
             }

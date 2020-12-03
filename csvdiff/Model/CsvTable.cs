@@ -8,22 +8,22 @@ namespace csvdiff.Model
 {
     public class CsvTable : IEquatable<CsvTable>
     {
-        private ExcelCellsParserBase _parser;
+        private CellsParserBase _parser;
         private ITableRowsReader _reader;
         private string _file;
 
         public ReadOnlyCollection<CsvRow> Rows { get; }
 
-        public CsvTable(string csvFilePath) : this(csvFilePath, new ExcelCellsParser())
+        public CsvTable(string csvFilePath) : this(csvFilePath, new CellsParser())
         { }
 
-        public CsvTable(string csvFilePath, ExcelCellsParserBase? parser) : this(csvFilePath, parser, new TableRowsReader())
+        public CsvTable(string csvFilePath, CellsParserBase? parser) : this(csvFilePath, parser, new TableRowsReader())
         { }
 
-        public CsvTable(string csvFilePath, ExcelCellsParserBase? parser, ITableRowsReader? reader)
+        public CsvTable(string csvFilePath, CellsParserBase? parser, ITableRowsReader? reader)
         {
             _file = csvFilePath;
-            _parser = parser ?? new ExcelCellsParser();
+            _parser = parser ?? new CellsParser();
             _reader = reader ?? new TableRowsReader();
             Rows = Array.AsReadOnly(LoadTable());
         }
