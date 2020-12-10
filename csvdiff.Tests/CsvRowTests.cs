@@ -165,7 +165,7 @@ namespace csvdiff.Tests
 
         #endregion ToString Tests
 
-        #region IFormattable Implementation
+        #region IFormattable Implementation Tests
 
         [Theory]
         [InlineData(new string[] { "Column1", "Column2", "Column3" }, "c|c", "Column1|Column2|Column3")]

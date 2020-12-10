@@ -26,6 +26,23 @@ namespace csvdiff.Tests
             _defaultTable = new CsvTable(_pathToDefaultTable, _defaultParserMock.Object, _defaultRowsReaderMock.Object);
         }
 
+        #region Constructor Tests
+
+        [Fact]
+        public void ThreeParameterCtor()
+        {
+            var expected = new CsvRow[]
+            {
+            new CsvRow(Enumerable.Repeat("Cell", 3).ToArray(), 1),
+            new CsvRow(Enumerable.Repeat("Cell", 3).ToArray(), 2),
+            new CsvRow(Enumerable.Repeat("Cell", 3).ToArray(), 3)
+            };
+
+            Assert.True(expected.SequenceEqual(_defaultTable.Rows));
+        }
+
+        #endregion Constructor Tests
+
         #region Equals Tests
 
         [Fact]
@@ -36,10 +53,8 @@ namespace csvdiff.Tests
             var result = _defaultTable.Equals(table2);
 
             Assert.True(result);
-            //As we use single mock instances for both tables - count of calls
-            //will be doubled.
-            _defaultParserMock.Verify(p => p.ParseCells(string.Empty), Times.Exactly(6)); //3 for each table
-            _defaultRowsReaderMock.Verify(r => r.ReadAllLines(_pathToDefaultTable), Times.Exactly(2)); //1 for each table
+            _defaultParserMock.Verify(p => p.ParseCells(string.Empty), Times.AtLeastOnce);
+            _defaultRowsReaderMock.Verify(r => r.ReadAllLines(_pathToDefaultTable), Times.AtLeastOnce);
         }
 
         [Fact]
@@ -66,8 +81,8 @@ namespace csvdiff.Tests
             var result = _defaultTable.Equals(table2);
 
             Assert.False(result);
-            _defaultParserMock.Verify(p => p.ParseCells(string.Empty), Times.Exactly(3));
-            _defaultRowsReaderMock.Verify(r => r.ReadAllLines(_pathToDefaultTable), Times.Exactly(1));
+            _defaultParserMock.Verify(p => p.ParseCells(string.Empty), Times.Never);
+            _defaultRowsReaderMock.Verify(r => r.ReadAllLines(_pathToDefaultTable), Times.Never);
         }
 
         [Fact]
@@ -86,25 +101,6 @@ namespace csvdiff.Tests
         }
 
         #endregion Equals Tests
-
-        #region Constructor Tests
-
-        [Fact]
-        public void ThreeParameterCtor()
-        {
-            var expected = new CsvRow[]
-            {
-            new CsvRow(Enumerable.Repeat("Cell", 3).ToArray(), 1),
-            new CsvRow(Enumerable.Repeat("Cell", 3).ToArray(), 2),
-            new CsvRow(Enumerable.Repeat("Cell", 3).ToArray(), 3)
-            };
-
-            Assert.True(expected.SequenceEqual(_defaultTable.Rows));
-            _defaultRowsReaderMock.Verify();
-            _defaultParserMock.Verify();
-        }
-
-        #endregion Constructor Tests
 
         #region GetHashCode Tests
 

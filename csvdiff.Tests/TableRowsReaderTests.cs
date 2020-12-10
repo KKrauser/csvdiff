@@ -8,8 +8,6 @@ namespace csvdiff.Tests
     {
         private TableRowsReader _loader = new TableRowsReader();
 
-        #region ReadAllLines Tests
-
         [Fact]
         public void ReadAllLinesPathNull()
         {
@@ -23,7 +21,5 @@ namespace csvdiff.Tests
             var path = "I'm not exist.csv";
             Assert.Throws<FileNotFoundException>(() => _loader.ReadAllLines(path));
         }
-
-        #endregion ReadAllLines Tests
     }
 }
